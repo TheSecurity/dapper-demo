@@ -1,17 +1,11 @@
 using DapperDemo.Api.Endpoints;
+using DapperDemo.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton(serviceProvider =>
-{
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var connectionString = configuration.GetConnectionString("DefaultConnection")
-        ?? throw new ApplicationException("The connection string is null");
-    return new SqlConnectionFactory(connectionString);
-});
-
+builder.Services.AddDapperRepositories();
 
 var app = builder.Build();
 
