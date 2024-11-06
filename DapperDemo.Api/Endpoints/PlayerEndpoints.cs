@@ -26,8 +26,8 @@ public static class PlayerEndpoints
 
         playersGroup.MapPost("", async (PlayerUpdateModel player, IPlayerRepository playerRepository) =>
         {
-            await playerRepository.CreatePlayerAsync(player);
-            return Results.NoContent();
+            var id = await playerRepository.CreatePlayerAsync(player);
+            return Results.Ok(id);
         });
 
         playersGroup.MapPut("{id}", async (int id, PlayerUpdateModel player, IPlayerRepository playerRepository) =>

@@ -17,21 +17,30 @@ public class UserDapperRepository(SqlConnectionFactory sqlConnectionFactory) : I
         using var connection = sqlConnectionFactory.CreateConnection();
 
         const string sql = """
-                SELECT * FROM Players
-                WHERE Id = @Id;
-            """;
+            SELECT * FROM Players
+            WHERE Id = @Id;
+        """;
 
         return await connection.QuerySingleOrDefaultAsync<Player>(sql, new { Id = id });
     }
 
-    public async Task CreatePlayerAsync(PlayerUpdateModel player)
+    public async Task<int> CreatePlayerAsync(PlayerUpdateModel player)
     {
         using var connection = sqlConnectionFactory.CreateConnection();
+
         const string sql = """
             INSERT INTO Players (Firstname, Lastname, Age)
+            OUTPUT INSERTED.Id
             VALUES (@Firstname, @Lastname, @Age);
         """;
-        await connection.ExecuteAsync(sql, player);
+
+        return await connection.QuerySingleAsync<int>(sql,
+            new
+            {
+                player.Firstname,
+                player.Lastname,
+                player.Age
+            });
     }
 
     public async Task UpdatePlayerAsync(int id, PlayerUpdateModel player)
@@ -51,9 +60,10 @@ public class UserDapperRepository(SqlConnectionFactory sqlConnectionFactory) : I
     {
         using var connection = sqlConnectionFactory.CreateConnection();
         const string sql = """
-            DELETE FROM Players
+            DELETE FROM 
             WHERE Id = @Id;
         """;
+
         await connection.ExecuteAsync(sql, new { Id = id });
     }
 }
